@@ -1,80 +1,56 @@
-# Name of App *(Give your app a short and informative title. Please adhere to our convention of Title Case without hyphens (e.g. My New App))*
+# Nest Finder
 
 MoveApps
 
-Github repository: *github.com/yourAccount/Name-of-App* *(provide the link to the repository where the code of the App can be found)*
+Github repository: https://github.com/steffenoppel/MoveAppNestFind
 
 ## Description
-*Enter here the short description of the App that might also be used when filling out the description during App submission to MoveApps. This text is directly presented to Users that look through the list of Apps when compiling Workflows.*
+This app is based on the (R package 'NestTool')[https://github.com/Vogelwarte/NestTool] and is designed for field-work use - namely to find the most likely nest location of a bird that is being tracked with a transmitting device that regularly sends location information to a Movebank project.
 
 ## Documentation
-*Enter here a detailed description of your App. What is it intended to be used for. Which steps of analyses are performed and how. Please be explicit about any detail that is important for use and understanding of the App and its outcomes. You might also refer to the sections below.*
+To use this app you must be a collaborator or data manager of a Movebank project that receives live location data of active animals. This app will NOT work on historic data, because it will only look for data up to 4 weeks prior to the present date.
+
+You will need to enter your Movebank username, your Movebank password, and the Movebank study name of the study in which the animal location data are stored. There is an optional field where you can enter a second Movebank study if you would like to look at animals from two studies simultaneously.
+
+You will need to provide a time frame (in weeks) as an integer number - this is the time window over which data will be downloaded from Movebank (from the present day up to X weeks previously, with X being the number you have entered in this field).
+
+The last field requires you to enter an error radius (in metres) around a likely nest location. This radius will determine in which radius the residency times will be calculated, i.e. how long an animal remained within that radius or how long it spent outside of this radius. Please consider device accuracy and general movement behaviour of the species when specifying the radius. Default is 50 m.
+
+Once the data have been downloaded the user is presented with a split window with a dropdown menu to select individual birds and the number of locations that should be displayed on the map. A download button allows the user to download a .gpkg file, which can be opened in free GIS applications on mobile devices to facilitate offline navigation. The gpkg file contains the likely nest locations for all individuals, not just the selected one shown in the map, and therefore only needs to be downloaded once.
 
 ### Application scope
 #### Generality of App usability
-*State here if the App was developed for a specific species, taxon or taxonomic group, or to answer a specific question. How might it influence the scope and utility of the App. This information will help the user to understand why the App might be producing no or odd results.*
-
-*Examples:*
 
 This App was developed using data of birds. 
 
-This App was developed using data of red deer. 
+This App was developed to identify nest sites, but can probably be used to identify any kind of regularly used location clusters like roosts, feeding sites, or the place where an animal died (if the transmitter is still providing location information).
 
-This App was developed for any taxonomic group. 
-
-This App was developed to identify kill sites, but can probably be used to identify any kind of location clusters like nests, dens or drinking holes.
+We developed this App specifically to assist in finding the nests of Red Kites tracked with GPS-GSM devices, and we have not exhaustively tested how well it works for other species and data sources.
 
 #### Required data properties
-*State here the required and/or optimal data properties for this App to perform properly.*
 
-*Examples:*
+This App is only applicable to data that have been recorded in the past 4 weeks. For historic data, the (R package 'NestTool')[https://github.com/Vogelwarte/NestTool] can be used to determine nest location and breeding success. 
 
-This App is only applicable to data that reflect range resident behavior. 
-
-The data should have a fix rate of at least 1 location per 30 minutes. 
+The data should have a fix rate of at least several locations per day, both during day and night, and with GPS precision. The location error of the data should be lower than the general movement radius around a nest specified by the user. 
 
 The App should work for any kind of (location) data.
 
 ### Input type
-*Indicate which type of input data the App requires.*
-
-*Example*: `move2::move2_loc`
+The App reads data from Movebank and requires a valid username, password, and the Movebank ID of a study the user has download access to. The remaining input fields are numeric.
 
 ### Output type
-*Indicate which type of output data the App produces to be passed on to subsequent Apps.*
+The App provides a visual map of likely nest locations for all individuals with sufficient data in the selected time period. These locations can also be downloaded in a (.gpkg file)[https://docs.fileformat.com/gis/gpkg/]
 
-*Example:* `move2::move2_loc`
-
-### Artefacts
-*If the App creates artefacts (e.g. csv, pdf, jpeg, shapefiles, etc), please list them here and describe each.*
-
-*Example:* `rest_overview.csv`: csv-file with Table of all rest site properties
 
 ### Settings 
-*Please list and define all settings that the App requires to be set by the App user, if necessary including their unit. Please state each of the settings that the user will encounter in the UI of the shiny app.*
+`Error radius (in m) of locations around likely nest site` (radius): Defined radius in which the residency times will be calculated. Unit: `metres`.
 
-*Example:* `Radius of resting site` (radius): Defined radius the animal has to stay in for a given duration of time for it to be considered resting site. Unit: `metres`.
 
-*Always include the "Store settings" setting as it will appear automatically in all shiny apps*
-`Store settings`: click to store the current settings of the App for future Workflow runs. 
+`Timeframe (number of recent weeks to download data)`: Defined interval over which data will be downloaded and analysed, anchored to the current date. Unit: `weeks`.
 
-### Changes in output data
-*Specify here how and if the App modifies the input data. Describe clearly what e.g. each additional column means.*
-
-*Examples:*
-
-The App adds to the input data the columns `Max_dist` and `Avg_dist`. They contain the maximum distance to the provided focal location and the average distance to it over all locations. 
-
-The App filterers the input data as selected by the user. 
-
-The output data is the outcome of the model applied to the input data. 
-
-The input data remains unchanged.
 
 ### Most common errors
-*Please describe shortly what most common errors of the App can be, how they occur and best ways of solving them.*
+If your data are too big, it is likely that you will get a 'disconnected from server' error message, simply because it took too long to download the data. Try a shorter time duration.
 
 ### Null or error handling
-*Please indicate for each setting as well as the input data which behaviour the App is supposed to show in case of errors or NULL values/input. Please also add notes of possible errors that can happen if settings/parameters are improperly set and any other important information that you find the user should be aware of.*
-
-*Example:* **Setting `radius`:** If no radius AND no duration are given, the input data set is returned with a warning. If no radius is given (NULL), but a duration is defined then a default radius of 1000m = 1km is set. 
+Try a shorter time duration by setting the Timeframe to 1 or 2. If your study contains hundreds of animals with tracking data at very high temporal resolution (seconds) then it is possible that the volume of data cannot be processed in this app. Sorry.
